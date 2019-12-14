@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Document</title>
+</head>
+<body>
+
+<article id="game">
+
+	<canvas id="board"></canvas>
+	<canvas id="dots"></canvas>
+	<canvas id="pacMan"></canvas>
+	<canvas id="ghostBlinky"></canvas>
+	<canvas id="ghostPinky"></canvas>
+	<canvas id="ghostInky"></canvas>
+	<canvas id="ghostClyde"></canvas>
+	<canvas id="text"></canvas>
+
+</article>
+
+<section id="menu">
+	<button autofocus id="startGame">Start Game</button> 
+	<button id="changeControl">Change control sceme</button>
+</section>
+
+<button id="muteButton" class="volume"></button>
+
+<style>
+
+@font-face {
+
+	font-family: "Press Start 2P"; 
+	src: url("./assets/fonts/PressStart2P-Regular.ttf") format("truetype"); 
+	font-style: normal; 
+	font-weight: normal; 
+
+}
+
+html{
+
+	overflow: hidden;
+
+}
+
+body{
+
+	margin: 0;
+	width: 100vw;
+	height: 100vh;
+	background-color: black;
+	font-family: 'Press Start 2P', serif;
+
+}
+
+button{
+
+	box-sizing: content-box;
+	cursor: pointer;
+	font-family: inherit;
+	font-size: 13px;
+	padding: 0;
+
+}
+
+canvas{
+
+	position: absolute;
+
+}
+
+#menu{
+
+	position: absolute;
+	width: 150px;
+	height: 110px;
+	left: calc(50% - 77px);
+	top: calc(50% - 57px)
+
+}
+
+#menu button{
+
+	display: block;
+	width: 100%;
+	height: 50px;
+	position: relative;
+	margin-bottom: 10px;
+	background-color: white;
+	color: black;
+
+}
+
+#game{
+
+	position: relative;
+	width: 550px;
+	height: 550px;
+	top: calc(50% - 275px);
+	left: calc(50% - 275px);
+
+}
+
+#muteButton{
+
+	width: 50px;
+	height: 50px;
+	position: relative;
+	padding: 0;
+	top: calc(50% - 250px);
+	left: calc(50% - 25px);
+	border: none;
+
+}
+
+.volume{
+
+	background-image: url("./assets/img/volume.png");
+
+}
+
+.mute{
+
+	background-image: url("./assets/img/volume-mute.png");
+
+}
+
+</style>
+
+<script type="text/javascript" src="./js/tools.js"></script>
+<script type="text/javascript" src="./js/classes.js"></script>
+<script type="text/javascript" src="./js/main.js"></script>
+<script type="text/javascript" src="./js/board.js"></script>
+
+</body>
+</html>
