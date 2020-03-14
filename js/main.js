@@ -1,562 +1,525 @@
+/* global getId, addTrack, moving, drawDots, drawFruit, drawBoard, CreatePacMan, eraseText, drawText, getTrack, CreateEnemy, Audio, requestAnimationFrame */
+
 const paths = [
+  // CENTER
+  [128, 416, 422, 416],
+  [30, 98, 518, 98],
+  [0, 258, 186, 258],
+  [362, 258, 550, 258],
+  [186, 204, 362, 204],
+  [186, 310, 362, 310],
+  [30, 522, 518, 522],
+  [238, 258, 314, 258],
+  [276, 204, 276, 258],
 
-	// CENTER
-	[128,416,422,416],
-	[30,98,518,98],
-	[0,258,186,258],
-	[362,258,550,258],
-	[186,204,362,204],
-	[186,310,362,310],
-	[30,522,518,522],
-	[238,258,314,258],
-	[276,204,276,258],
+  // LEFT
+  [128, 26, 128, 470],
+  [30, 26, 244, 26],
+  [30, 26, 30, 150],
+  [30, 150, 128, 150],
+  [244, 26, 244, 98],
+  [186, 204, 186, 364],
+  [30, 364, 244, 364],
+  [244, 364, 244, 416],
+  [30, 364, 30, 416],
+  [30, 416, 70, 416],
+  [70, 416, 70, 470],
+  [30, 470, 128, 470],
+  [30, 470, 30, 522],
+  [244, 150, 244, 204],
+  [186, 150, 244, 150],
+  [186, 98, 186, 150],
+  [244, 470, 244, 522],
+  [186, 470, 244, 470],
+  [186, 416, 186, 470],
 
-	// LEFT
-	[128,26,128,470],
-	[30,26,244,26],
-	[30,26,30,150],
-	[30,150,128,150],
-	[244,26,244,98],
-	[186,204,186,364],
-	[30,364,244,364],
-	[244,364,244,416],
-	[30,364,30,416],
-	[30,416,70,416],
-	[70,416,70,470],
-	[30,470,128,470],
-	[30,470,30,522],
-	[244,150,244,204],
-	[186,150,244,150],
-	[186,98,186,150],
-	[244,470,244,522],
-	[186,470,244,470],
-	[186,416,186,470],
-
-	// RIGHT
-	[422,26,422,470],
-	[304,26,518,26],
-	[518,26,518,150],
-	[304,26,304,98],
-	[422,150,518,150],
-	[362,204,362,364],
-	[304,364,518,364],
-	[304,364,304,416],
-	[518,364,518,416],
-	[480,416,518,416],
-	[480,416,480,470],
-	[422,470,518,470],
-	[518,470,518,522],
-	[304,150,304,204],
-	[304,150,362,150],
-	[362,98,362,150],
-	[304,470,304,522],
-	[304,470,362,470],
-	[362,416,362,470]
-
-];
-
-const tracksPool = [
-
-	["openingSong", "opening", "./assets/sound/opening_song.mp3", false],
-	["sirenEffect", "siren", "./assets/sound/siren_effect.mp3", true],
-	["weakGhost", "weak", "./assets/sound/weak_ghost.mp3", true],
-	["wakaEffect", "waka", "./assets/sound/eating_dot.mp3", true],
-	["eatFruit", "eatFruit", "./assets/sound/eat_fruit.mp3", false],
-	["eatGhostEffect", "eatGhost", "./assets/sound/eating_ghost_effect.mp3", false],
-	["goHomeEffect", "ghostHome", "./assets/sound/ghost_go_home.mp3", true],
-	["extraLifeEffect", "extraLife", "./assets/sound/extra_live_effect.mp3", false],
-	["dieEffect", "die", "./assets/sound/dies_effect.mp3", false],
-	["lolSong", "lol", "./assets/sound/lol_u_died.mp3", true]
-	
+  // RIGHT
+  [422, 26, 422, 470],
+  [304, 26, 518, 26],
+  [518, 26, 518, 150],
+  [304, 26, 304, 98],
+  [422, 150, 518, 150],
+  [362, 204, 362, 364],
+  [304, 364, 518, 364],
+  [304, 364, 304, 416],
+  [518, 364, 518, 416],
+  [480, 416, 518, 416],
+  [480, 416, 480, 470],
+  [422, 470, 518, 470],
+  [518, 470, 518, 522],
+  [304, 150, 304, 204],
+  [304, 150, 362, 150],
+  [362, 98, 362, 150],
+  [304, 470, 304, 522],
+  [304, 470, 362, 470],
+  [362, 416, 362, 470]
 ]
 
-const enemyPool = [
+const tracksPool = [
+  ['openingSong', 'opening', './assets/sound/opening_song.mp3', false],
+  ['sirenEffect', 'siren', './assets/sound/siren_effect.mp3', true],
+  ['weakGhost', 'weak', './assets/sound/weak_ghost.mp3', true],
+  ['wakaEffect', 'waka', './assets/sound/eating_dot.mp3', true],
+  ['eatFruit', 'eatFruit', './assets/sound/eat_fruit.mp3', false],
+  ['eatGhostEffect', 'eatGhost', './assets/sound/eating_ghost_effect.mp3', false],
+  ['goHomeEffect', 'ghostHome', './assets/sound/ghost_go_home.mp3', true],
+  ['extraLifeEffect', 'extraLife', './assets/sound/extra_live_effect.mp3', false],
+  ['dieEffect', 'die', './assets/sound/dies_effect.mp3', false],
+  ['lolSong', 'lol', './assets/sound/lol_u_died.mp3', true]
+]
 
-	{name: "Blinky", color: "red", target: "player", spawn: {x: 276, y: 204}},
-	{name: "Pinky", color: "pink", target: "after", spawn: {x: 238, y: 258}},
-	{name: "Inky", color: "cyan", target: "any", spawn: {x: 278, y: 258}},
-	{name: "Clyde", color: "orange", target: "random", spawn: {x: 314, y: 258}}
-
-];
-
-const Tau = Math.PI * 2;
-
-const mouth = new Map([
-
-	["right", {
-
-		openS: Tau * .1,
-		openE: Tau * .9,
-		closeS: 0,
-		closeE: Tau
-
-	}],
-
-	["left", {
-
-		openS: Tau * .6,
-		openE: Tau * .4,
-		closeS: Tau * .49,
-		closeE: Tau * .49
-
-	}],
-
-	["down", {
-
-		openS: Tau * .35,
-		openE: Tau * 1.15,
-		closeS: Tau * .25,
-		closeE: Tau * 1.25
-
-	}],
-
-	["up", {
-
-		openS: Tau * .85,
-		openE: Tau * .65,
-		closeS: Tau * .74,
-		closeE: Tau * .74
-
-	}]
-
+const playerStartPos = new Map([
+	['first', { x: 274, y: 416 }],
+	['second', { x: 274, y: 98 }]
 ])
 
-const CWidth = 550;
-const CHeight = 550;
+const enemyPool = [
+  { color: 'red', target: 'player', spawn: { x: 276, y: 204 } }, // name: 'Blinky'
+  { color: 'pink', target: 'after', spawn: { x: 238, y: 258 } }, // name: 'Pinky'
+  { color: 'cyan', target: 'any', spawn: { x: 278, y: 258 } }, // name: 'Inky'
+  { color: 'orange', target: 'random', spawn: { x: 314, y: 258 } } // name: 'Clyde'
+]
 
-let canvasPlayer = getId("pacMan");
-let cPlayer = canvasPlayer.getContext("2d");
+const Tau = Math.PI * 2
 
-let blinkyCanvas = getId("ghostBlinky");
-let cBlinky = blinkyCanvas.getContext("2d");
+const mouth = new Map([
+  ['right', {
+    openS: Tau * 0.1,
+    openE: Tau * 0.9,
+    closeS: 0,
+    closeE: Tau
+  }],
+  ['left', {
+    openS: Tau * 0.6,
+    openE: Tau * 0.4,
+    closeS: Tau * 0.49,
+    closeE: Tau * 0.49
+  }],
+  ['down', {
+    openS: Tau * 0.35,
+    openE: Tau * 1.15,
+    closeS: Tau * 0.25,
+    closeE: Tau * 1.25
+  }],
+  ['up', {
+    openS: Tau * 0.85,
+    openE: Tau * 0.65,
+    closeS: Tau * 0.74,
+    closeE: Tau * 0.74
+  }]
+])
 
-let pinkyCanvas = getId("ghostPinky");
-let cPinky = pinkyCanvas.getContext("2d");
+const cWidth = 550
+const cHeight = 550
 
-let inkyCanvas = getId("ghostInky");
-let cInky = inkyCanvas.getContext("2d");
+const canvasPlayer = getId('pacMan')
+const cPlayer = canvasPlayer.getContext('2d')
 
-let clydeCanvas = getId("ghostClyde");
-let cClyde = clydeCanvas.getContext("2d");
+const canvasGhosts = getId('ghosts')
+const cGhosts = canvasGhosts.getContext('2d')
 
-let dotsCanvas = getId("dots");
-let cDot = dotsCanvas.getContext("2d");
+const dotsCanvas = getId('dots')
+const cDot = dotsCanvas.getContext('2d')
 
-let textCanvas = getId("text");
-let cText = textCanvas.getContext("2d");
+const textCanvas = getId('text')
+const cText = textCanvas.getContext('2d')
 
-let boardCanvas = getId("board");
-let cBoard = boardCanvas.getContext("2d", { alpha: false });
+const boardCanvas = getId('board')
+const cBoard = boardCanvas.getContext('2d', { alpha: false })
 
-let menu = getId("menu");
-let startButton = getId("startGame");
-let controlButton = getId("changeControl");
-let muteButton = getId("muteButton");
+const menu = getId('menu')
+const onePlayerButton = getId('onePlayer')
+const twoPlayersButton = getId('twoPlayers')
+const firstControlButton = getId('changeFirstControl')
+const secondControlButton = getId('changeSecondControl')
+const muteButton = getId('muteButton')
 
-let stopGame = false;
+let stopGame = false
 
-let tracks = {};
-let playingTracks = new Map([]);
-let muteSound = false;
+const tracks = new Map()
+const playingTracks = new Map()
+let muteSound = false
 
-let player = {};
-let controls = {
+const player = new Map()
+const controls = new Map([
+  ['firstPlayer', {
+    up: 'w',
+    left: 'a',
+    down: 's',
+    right: 'd'
+  }],
+  ['secondPlayer', {
+    up: 'ArrowUp',
+    left: 'ArrowLeft',
+    down: 'ArrowDown',
+    right: 'ArrowRight'
+  }]
+])
 
-	up: 87,
-	down: 83,
-	left: 65,
-	right: 68
-
+const level = {
+  enemies: [],
+  dots: [],
+  text: [],
+  fruit: null
 }
 
-let releas = {
-
-	amount: 1,
-	interval: 0
-
+const globalStats = {
+  firstPlayerHighScore: 0,
+  secondPlayerHighScore: 0,
+  ghostStreak: 1,
+  weakGhostTimer: 0,
+  fruitsTimer: 0,
+  fruitsSpawned: 0
 }
 
-let level = {
+function * changeControlButtons (scheme) {
+  const block = document.createElement('div')
 
-	enemies: [],
-	dots: [],
-	text: [],
-	fruit: undefined
+  block.id = 'block'
 
+  document.body.append(block)
+
+  alert('After you click OK press key for UP')
+
+  scheme.up = yield
+
+  alert('After you click OK press key for LEFT')
+
+  scheme.left = yield
+
+  alert('After you click OK press key for DOWN')
+
+  scheme.down = yield
+
+  alert('After you click OK press key for RIGHT')
+
+  scheme.right = yield
+
+  document.onkeydown = null
+
+  block.remove()
 }
 
-let globalStats = {
+function changeControls (player) {
+  const controlScheme = controls.get(player)
+  const controlSchemeBeforeChange = {
+    up: controlScheme.up,
+    left: controlScheme.left,
+    down: controlScheme.down,
+    right: controlScheme.right
+  }
 
-	ghostStreak: 1,
-	weakGhostTimer: 0,
-	fruitsTimer: 0,
-	fruitsSpawned: 0
+  const iterator = changeControlButtons(controlScheme)
 
+  iterator.next()
+
+  document.onkeydown = event => {
+    if (event.key === 'Escape') {
+      controlScheme.up = controlSchemeBeforeChange.up
+      controlScheme.left = controlSchemeBeforeChange.left
+      controlScheme.down = controlSchemeBeforeChange.down
+      controlScheme.right = controlSchemeBeforeChange.right
+
+      document.onkeydown = null
+
+      document.getElementById('block').remove()
+
+      return
+    }
+
+    iterator.next(event.key)
+  }
 }
-let stats = new Proxy({
-
-	score: 0,
-	highScore: 0,
-	lives: 3,
-	giftedLives: 1
-
-}, {
-
-	set(target, key, value) {
-
-		if(key == "score") {
-
-			if(value > stats.highScore) {
-
-				stats.highScore = value;
-
-			}
-
-			if(value / (stats.giftedLives * 10000) >= 1) {
-
-				stats.lives += 1;
-				stats.giftedLives += 1;
-
-				addTrack(tracks.extraLifeEffect);
-
-			}
-
-		}else if(key == "lives") {
-
-			if(value < target.lives) {
-
-				moving(false);
-
-				player.dieAnimation();
-
-				clearTimeout(globalStats.weakGhostTimer);
-				clearTimeout(globalStats.fruitsTimer)
-
-				addTrack(tracks.dieEffect).then(() => {
-
-					if(value <= 0) {
-
-						restartGame();
-
-					}else {
-
-						restartLevel();
-
-					}
-
-				});
-
-			}
-
-		}
-
-		target[key] = value
-
-		return true;
-
-	}
-
-});
 
 tracksPool.forEach(track => {
+  tracks.set(track[0], {
+    id: track[1],
+    url: new Audio(track[2])
+  })
 
-	tracks[track[0]] = {
+  const createdTrack = tracks.get(track[0])
 
-		id: track[1],
-		url: new Audio(track[2])
-	
-	}
-	tracks[track[0]].url.loop = track[3];
-	tracks[track[0]].url.load();
-
+  createdTrack.url.loop = track[3]
+  createdTrack.url.load()
 })
 
-tracks.wakaEffect.url.volume = .5;
+tracks.get('wakaEffect').url.volume = 0.5
 
-alert("Your controls sceme is - W - A - S - D -");
+alert('first player control scheme is - W - A - S - D -\nsecond player control scheme is - Arrow Up - Arrow Left - Arrow Down - Arrow Rigth')
 
-canvasPlayer.width = CWidth;
-canvasPlayer.height = CHeight;
+canvasPlayer.width = cWidth
+canvasPlayer.height = cHeight
 
-blinkyCanvas.width = CWidth;
-blinkyCanvas.height = CHeight;
+canvasGhosts.width = cWidth
+canvasGhosts.height = cHeight
 
-pinkyCanvas.width = CWidth;
-pinkyCanvas.height = CHeight;
+dotsCanvas.width = cWidth
+dotsCanvas.height = cHeight
 
-inkyCanvas.width = CWidth;
-inkyCanvas.height = CHeight;
+textCanvas.width = cWidth
+textCanvas.height = cHeight
 
-clydeCanvas.width = CWidth;
-clydeCanvas.height = CHeight;
+boardCanvas.width = cWidth
+boardCanvas.height = cHeight
 
-dotsCanvas.width = CWidth;
-dotsCanvas.height = CHeight;
+onePlayerButton.addEventListener('click', event => { init(1) })
 
-textCanvas.width = CWidth;
-textCanvas.height = CHeight;
+twoPlayersButton.addEventListener('click', event => { init(2) })
 
-boardCanvas.width = CWidth;
-boardCanvas.height = CHeight;
+firstControlButton.addEventListener('click', event => { changeControls('firstPlayer') })
 
-startButton.addEventListener("click", event => {
+secondControlButton.addEventListener('click', event => { changeControls('secondPlayer') })
 
-	menu.style.display = "none";
+muteButton.addEventListener('click', event => {
+  muteSound = !muteSound
 
-	document.onkeydown = event => {
+  muteButton.className = muteSound ? 'mute' : 'volume'
 
-		let key = "";
+  tracks.forEach(t => { t.url.volume = muteSound ? 0 : 1 })
+})
 
-		switch(event.keyCode) {
+function init (playersAmount) {
+  const firstPlayerPos = playerStartPos.get('first')
 
-			case controls.up:
+  player.set('first', new CreatePacMan(firstPlayerPos.x, firstPlayerPos.y, 16, 2, 'male'))
 
-				key = "up";
-				break;
+  if (playersAmount === 2) {
+    const secondPlayerPos = playerStartPos.get('second')
 
-			case controls.down:
+    player.set('second', new CreatePacMan(secondPlayerPos.x, secondPlayerPos.y, 16, 2, 'female'))
+  }
 
-				key = "down";
-				break;
+  for (const enemy of enemyPool) {
+    level.enemies.push(new CreateEnemy(enemy.spawn.x, enemy.spawn.y, 16, 2, enemy.color, enemy.target))
+  }
 
-			case controls.left:
+  menu.style.display = 'none'
 
-				key = "left";
-				break;
+  document.onkeydown = event => {
+    const firstControls = controls.get('firstPlayer')
+    const secondControls = controls.get('secondPlayer')
 
-			case controls.right:
+    let key = ''
+    let playerKey = ''
 
-				key = "right";
-				break;
+    switch (event.key) {
+      case firstControls.up:
 
-		}
+        key = 'up'
+        playerKey = 'first'
 
-		if(key !== "") {
+        break
 
-			player.key = key;
+      case firstControls.down:
 
-			clearTimeout(player.turnLag);
+        key = 'down'
+        playerKey = 'first'
 
-			if(player.key !== player.direction) {
+        break
 
-				player.turnLag = setTimeout(() => {
+      case firstControls.left:
 
-					player.key = player.direction;
+        key = 'left'
+        playerKey = 'first'
 
-				}, 1000);
+        break
 
-			}
+      case firstControls.right:
 
-		}
+        key = 'right'
+        playerKey = 'first'
 
-	};
+        break
+    }
 
-	init();
-	drawDots();
+    switch (event.key) {
+      case secondControls.up:
 
-	getReadyForGame();
+        key = 'up'
+        playerKey = 'second'
 
-	drawFruit();
+        break
 
-});
+      case secondControls.down:
 
-controlButton.addEventListener("click", event => {
+        key = 'down'
+        playerKey = 'second'
 
-	function* changeControls() {
+        break
 
-		alert("After you click OK press key for UP");
+      case secondControls.left:
 
-		controls.up = yield;
+        key = 'left'
+        playerKey = 'second'
 
-		alert("After you click OK press key for DOWN");
+        break
 
-		controls.down = yield;
+      case secondControls.right:
 
-		alert("After you click OK press key for LEFT");
+        key = 'right'
+        playerKey = 'second'
 
-		controls.left = yield;
+        break
+    }
 
-		alert("After you click OK press key for RIGHT");
+    if (key !== '') {
+      if (!player.has(playerKey)) return
 
-		controls.right = yield;
+      const currentPlayer = player.get(playerKey)
 
-		document.onkeydown = null;
+      currentPlayer.key = key
 
-		return;
+      clearTimeout(currentPlayer.turnLag)
 
-	}
+      if (currentPlayer.key !== currentPlayer.direction) {
+        currentPlayer.turnLag = setTimeout(() => {
+          currentPlayer.key = currentPlayer.direction
+        }, 1000)
+      }
+    }
+  }
 
-	let iterator = changeControls();
+  drawBoard()
 
-	iterator.next();
+  drawDots()
 
-	document.onkeydown = event => iterator.next(event.keyCode);
-
-});
-
-muteButton.addEventListener("click", event => {
-
-	muteSound = !muteSound;
-
-	muteButton.className = muteSound ? "mute" : "volume";
-	Object.values(tracks).forEach(track => track.url.volume = muteSound ? 0 : 1)
-
-});
-
-function init() {
-
-	player = {};
-	level.enemies = [];
-
-	player = new CreatePacMan(274, 416, 16, 2);
-	player.draw();
-
-	for(let enemy of enemyPool) {
-
-		level.enemies.push(new CreateEnemy(enemy.spawn.x, enemy.spawn.y, 16, 2, enemy.name, enemy.color, enemy.target));
-
-	}
-	level.enemies.forEach(enemy => enemy.draw());
-
-	drawBoard();
-
+  getReadyForGame()
 }
 
-function anime() {
+function anime () {
+  if (stopGame === true) return
 
-	for(let i = 0; i < releas.amount; i++) {
+  level.enemies.forEach(e => { e.erase() })
+  level.enemies.forEach(e => { e.update() })
 
-		let enemy = level.enemies[i];
+  player.forEach(p => { p.erase() })
+  player.forEach(p => { p.update() })
 
-		enemy.erase();
-		enemy.update();
-
-	}
-
-	player.erase();
-	player.update();
-
-	if(stopGame === true) return;
-
-	requestAnimationFrame(anime);
-
+  requestAnimationFrame(anime)
 }
 
-function releasGhost() {
+function releaseGhost () {
+  for (let i = 0; i < level.enemies.length; i++) {
+    const enemy = level.enemies[i]
 
-	releas.amount = 1;
+    clearTimeout(enemy.releaseTimer)
 
-	clearInterval(releas.interval);
-
-	releas.interval = setInterval(() => {
-
-		releas.amount < enemyPool.length ? releas.amount++ : clearInterval(releas.interval);
-
-	}, 2000);
-
+    enemy.release = false
+    enemy.releaseTimer = 0
+    enemy.releaseTimer = setTimeout(() => { enemy.release = true }, i * 2000)
+  }
 }
 
-function getReadyForGame() {
+function getReadyForGame () {
+  player.forEach(p => {
+    toBasicPosition(p, playerStartPos.get(p.sex === 'male' ? 'first' : 'second'))
 
-	drawText(235, 325, 90, "Ready!", 25, "yellow");
+    p.dead = false
 
-	addTrack(tracks.openingSong).then(() => {
+    clearTimeout(p.invincibleTimer)
 
-		eraseText();
+    p.invincible = false
+    p.invincibleTimer = 0
+  })
 
-		addTrack(tracks.sirenEffect, false);
+  for (let i = 0; i < level.enemies.length; i++) { toBasicPosition(level.enemies[i], enemyPool[i].spawn) }
 
-		player.eatAnimation();
-		level.dots.forEach(dot => { if(dot.type == "powerUp") dot.bleek(true)});
+  player.forEach(p => { p.draw() })
 
-		releasGhost();
+  level.enemies.forEach(enemy => enemy.draw())
 
-		if(level.fruit === undefined) {
+  drawText(235, 325, 90, 'Ready!', 25, 'yellow')
 
-			if(globalStats.fruitsSpawned < 2) drawFruit();
+  addTrack(tracks.get('openingSong')).then(() => {
+    eraseText()
 
-		}else {
+    addTrack(tracks.get('sirenEffect'), false)
 
-			level.fruit.disappear(true);
+    level.dots.forEach(dot => { if (dot.type === 'powerUp') dot.bleek(true) })
 
-		}
+    releaseGhost()
 
-		moving(true);
+    if (level.fruit) {
+      level.fruit.disappear(true)
+    } else if (globalStats.fruitsSpawned < 2) {
+      drawFruit()
+    }
 
-	});
-
+    moving(true)
+  })
 }
 
-function restartGame() {
+function restartGame () {
+  console.log('restartGame()')
 
-	function restart(e) {
+  function restart (e) {
+    if (e.key === 'Enter') {
+      document.removeEventListener('keypress', restart)
 
-		if(e.key == "Enter") {
+      eraseText()
 
-			document.removeEventListener("keypress", restart);
+      getTrack(tracks.get('lolSong')).turnOff()
 
-			eraseText();
+      restartLevel()
+      drawDots()
+      drawFruit()
+    }
+  }
 
-			getTrack(tracks.lolSong).turnOff();
+  clearTimeout(globalStats.fruitsTimer)
+  clearTimeout(globalStats.weakGhostTimer)
 
-			restartLevel();
-			drawDots();
-			drawFruit();
+  level.enemies.forEach(enemy => { enemy.erase() })
 
-		}
+  player.forEach(p => { p.erase() })
 
-	}
+  if (level.fruit) {
+    level.fruit.disappear(false)
+    level.fruit.erase()
+  }
 
-	clearTimeout(globalStats.fruitsTimer);
-	clearTimeout(globalStats.weakGhostTimer);
+  const textAfterDeath = player.size === 1 ? 'LOL, YOU DIED' : 'LOL, YOU ARE BOTH DEAD'
 
-	level.enemies.forEach(enemy => enemy.erase());
-	player.erase();
+  drawText(175, 230, 200, textAfterDeath, 25, 'red')
 
-	if(level.fruit !== undefined) {
+  let i = 0
 
-		level.fruit.disappear(false);
-		level.fruit.erase();
+  for (const p of player) {
+    const playerHighScore = p[1].sex === 'male' ? 'firstPlayerHighScore' : 'secondPlayerHighScore'
 
-	}
+    drawText(150, 270 + i * 80, 300, `${p[0]} player high score = ${globalStats[playerHighScore]}`, 20)
+    drawText(150, 310 + i * 80, 300, `${p[0]} player current score = ${p[1].score}`, 18)
 
-	drawText(175, 230, 200, "LOL, YOU DIED", 25, "red");
-	drawText(175, 270, 200, `High score = ${stats.highScore}`, 20);
-	drawText(175, 310, 200, `Your score = ${stats.score}`, 18);
+    i++
+  }
 
-	stats.score = 0;
-	stats.giftedlives = 1;
-	stats.lives = 3;
-	
-	globalStats.fruitsSpawned = 0;
-	level.fruit = undefined;
+  player.forEach(p => {
+    p.score = 0
+    p.giftedlives = 1
+    p.lives = 3
+  })
 
-	addTrack(tracks.lolSong, false);
+  globalStats.fruitsSpawned = 0
+  level.fruit = null
 
-	document.addEventListener("keypress", restart);
+  addTrack(tracks.get('lolSong'), false)
 
+  document.addEventListener('keypress', restart)
 }
 
-function restartLevel() {
+function restartLevel () {
+  clearTimeout(globalStats.fruitsTimer)
+  clearTimeout(globalStats.weakGhostTimer)
 
-	clearTimeout(globalStats.fruitsTimer);
-	clearTimeout(globalStats.weakGhostTimer);
-	
-	globalStats.ghostStreak = 1;
+  level.dots.forEach(dot => { if (dot.type === 'powerUp') dot.bleek(false) })
 
-	if(level.fruit !== undefined) {
+  globalStats.ghostStreak = 1
 
-		console.log("if(fruit !== undefined) WORKS!!!!!!")
+  if (level.fruit) level.fruit.disappear(false)
 
-		level.fruit.disappear(false);
+  player.forEach(p => { p.erase() })
 
-	}
+  level.enemies.forEach(enemy => { enemy.erase() })
 
-	player.erase();
-	level.enemies.forEach(enemy => enemy.erase());
-
-	init();
-
-	getReadyForGame();
-
+  getReadyForGame()
 }

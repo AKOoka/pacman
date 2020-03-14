@@ -1,180 +1,151 @@
-let getId = id => document.getElementById(id);
+/* global paths, level, playingTracks, globalStats, anime, CreateTrack, CreatePowerUpDot, CreateFruit, CreateDot, CreateText */
 
-let samePoints = (x, y, x2, y2) => (x === x2 && y === y2) ? true : false;
+const getId = id => document.getElementById(id)
 
-let random = (min, max) => Math.floor(Math.random() * (max - min + 1) + min);
+const samePoints = (x, y, x2, y2) => (x === x2 && y === y2)
 
-let distance = (point1, point2) => (point1.x - point2.x) * (point1.x - point2.x) + (point1.y - point2.y) * (point1.y - point2.y);
+const random = (min, max) => Math.floor(Math.random() * (max - min + 1) + min)
 
-let collision = (obj1, obj2, r1, r2) => Math.hypot(obj1.x - obj2.x, obj1.y - obj2.y) - r1 - r2 <= 0;
+const distance = (point1, point2) => (point1.x - point2.x) * (point1.x - point2.x) + (point1.y - point2.y) * (point1.y - point2.y)
 
-let inRange = (x, y, range) => (x >= range[0] && x <= range[2]) && (y >= range[1] && y <= range[3]) ? true : false;
+const collision = (obj1, obj2, r1, r2) => Math.hypot(obj1.x - obj2.x, obj1.y - obj2.y) - r1 - r2 <= 0
 
-let inPath = (x, y) => paths.find(el => inRange(x, y, el));
+const inRange = (x, y, range) => (x >= range[0] && x <= range[2]) && (y >= range[1] && y <= range[3])
 
-let getTrack = track => playingTracks.get(track.id);
+const inPath = (x, y) => paths.find(el => inRange(x, y, el))
 
-function drawText(x, y, maxWidth, text, size, color) {
+const getTrack = track => playingTracks.get(track.id)
 
-	level.text.push(new CreateText(x, y, maxWidth, text, size, color));
-	level.text.forEach(text => text.draw());
-
+function drawText (x, y, maxWidth, text, size, color) {
+  level.text.push(new CreateText(x, y, maxWidth, text, size, color))
+  level.text.forEach(text => text.draw())
 }
 
-function eraseText() {
-
-	level.text.forEach(text => text.erase());
-	level.text = [];
-
+function eraseText () {
+  level.text.forEach(text => text.erase())
+  level.text = []
 }
 
-function addTrack(track, timerOn = true) {
+function addTrack (track, timerOn = true) {
+  playingTracks.set(track.id, new CreateTrack(track.id, track.url))
 
-	let song;
+  const song = getTrack(track)
 
-	playingTracks.set(track.id, new CreateTrack(track.id, track.url));
+  song.url.play()
 
-	song = getTrack(track);
-	song.url.play();
-
-	if(timerOn) {
-
-		return song.setTimer();
-
-	}
-
+  if (timerOn) {
+    return song.setTimer()
+  }
 }
 
-function moving(type) {
+function moving (type, clearTimer = true) {
+  if (type) {
+    stopGame = false
 
-	if(type === false) {
+    if (clearTimer) level.enemies.forEach(e => { e.remakeHolePath() })
 
-		stopGame = true;
+    anime()
+  } else {
+    stopGame = true
 
-		level.enemies.forEach(enemy => clearTimeout(enemy.remakeTimer));
-
-	}else if(type === true) {
-
-		stopGame = false;
-
-		level.enemies.forEach(enemy => enemy.remakeHolePath());
-
-		anime();
-
-	}
-
+    if (clearTimer) level.enemies.forEach(e => { clearTimeout(e.remakeTimer) })
+  }
 }
 
-function drawFruit() {
+function toBasicPosition (item, startPosition) {
+  item.x = startPosition.x
+  item.y = startPosition.y
 
-	let poolOfFruits = ["cherry"];
+  item.path = inPath(item.x, item.y)
 
-	globalStats.fruitsTimer = setTimeout(() => {
+  item.direction = 'left'
+  item.key = ''
 
-		level.fruit = new CreateFruit(276, 310, 16, "cherry");
-		level.fruit.draw();
+  item.type === 'enemy' ? item.returnNormal() : item.invincible = false
 
-		globalStats.fruitsSpawned++;
-
-	}, random(15000, 30000));
-
+  clearTimeout(item.turnLag)
 }
 
+function drawFruit () {
+  const poolOfFruits = ['cherry']
 
-function drawDots() {
+  globalStats.fruitsTimer = setTimeout(() => {
+    level.fruit = new CreateFruit(276, 310, 16, 'cherry')
+    level.fruit.draw()
+    level.fruit.disappear(true)
 
-	let filterForbidden = paths.filter(el => {
+    globalStats.fruitsSpawned++
+  }, random(15000, 45000))
+}
 
-		let forbiddenPaths = [
-	
-			[362,204,362,364],
-			[186,204,186,364],
-			[304,150,304,204],
-			[244,150,244,204],
-			[0,258,186,258],
-			[362,258,550,258],
-			[186,204,362,204],
-			[186,310,362,310],
-			[238,258,314,258],
-			[276,204,276,258]
+function drawDots () {
+  const filterForbidden = paths.filter(el => {
+    const forbiddenPaths = [
+      [362, 204, 362, 364],
+      [186, 204, 186, 364],
+      [304, 150, 304, 204],
+      [244, 150, 244, 204],
+      [0, 258, 186, 258],
+      [362, 258, 550, 258],
+      [186, 204, 362, 204],
+      [186, 310, 362, 310],
+      [238, 258, 314, 258],
+      [276, 204, 276, 258]
+    ]
 
-		];
+    return forbiddenPaths.every(p => el.toString() !== p.toString())
+  })
 
-		return forbiddenPaths.every(p => el.toString() !== p.toString());
+  function pushPowerDots () {
+    const dir = [
+      [30, 79.39999999999999],
+      [518, 79.39999999999999],
+      [30, 416],
+      [518, 416]
+    ]
 
-	});
+    dir.forEach(d => level.dots.push(new CreatePowerUpDot(d[0], d[1], 8)))
+  }
 
-	function pushPowerDots() {
+  function pushDots () {
+    let dir = null
 
-		let dir = [
-		
-			[30, 79.39999999999999],
-			[518, 79.39999999999999],
-			[30, 416],
-			[518, 416]
-		
-		]
+    filterForbidden.forEach(p => level.dots.push(new CreateDot(p[2], p[3])))
 
-		dir.forEach(d => level.dots.push(new CreatePowerUpDot(d[0], d[1], 8)))
-	
-	}
+    for (const p of filterForbidden) {
+      const point = {
+        x: p[0],
+        y: p[1]
+      }
 
-	function pushDots() {
+      let gap
 
-		filterForbidden.forEach(p => level.dots.push(new CreateDot(p[2], p[3])));
+      if (p[0] === p[2]) {
+        dir = 'down'
+        gap = 17.80
+      } else if (p[1] === p[3]) {
+        dir = 'right'
+        gap = 19.53
+      }
 
-		for(let p of filterForbidden) {
-		
-			let point = {
+      while (inRange(point.x, point.y, p)) {
+        if (level.dots.some(dot => !collision(dot, point, dot.radius, dot.radius))) {
+          level.dots.push(new CreateDot(point.x, point.y))
+        }
 
-				x: p[0],
-				y: p[1]
+        if (dir === 'right') {
+          point.x += gap
+        } else if (dir === 'down') {
+          point.y += gap
+        }
+      }
+    }
+  }
 
-			}
+  level.dots = []
 
-			let gap;
+  pushPowerDots()
+  pushDots()
 
-			if(p[0] == p[2]) {
-
-				dir = "down";
-				gap = 17.80;
-
-			}else if(p[1] == p[3]) {
-
-				dir = "right";
-				gap = 19.53;
-
-			}
-
-			while(inRange(point.x, point.y, p)) {
-
-				if(level.dots.some(dot => collision(dot, point, dot.radius, dot.radius)) == false) {
-
-					level.dots.push(new CreateDot(point.x, point.y));
-
-				}
-
-				if(dir == "right") {
-
-					point.x += gap;
-
-				}else if(dir == "down") {
-
-					point.y += gap;
-
-				}
-
-			}
-		
-		}
-
-	}
-
-	level.dots = [];
-
-	pushPowerDots();
-	pushDots();
-
-	for(let dot of level.dots) dot.draw();
-	
+  for (const dot of level.dots) dot.draw()
 }
