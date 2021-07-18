@@ -1294,63 +1294,17 @@ class CreatePacMan extends MovingObj {
     ctx.moveTo(this.x, this.y)
     ctx.arc(this.x, this.y, this.radius, this.mouth.start, this.mouth.end, false)
     ctx.lineTo(this.x, this.y)
-    ctx.fillStyle = '#fff200'
+    if (this.sex === 'male') {
+      ctx.fillStyle = '#fff200'
+    } else {
+      ctx.fillStyle = '#fc4e91'
+    }
     ctx.fill()
 
     if (this.invincible) {
     	ctx.strokeStyle = 'white'
     	ctx.lineWidth = 3
     	ctx.stroke()
-    }
-
-    if (this.sex === 'female') {
-    	ctx.save()
-
-    	ctx.fillStyle = '#e52522'
-
-    	switch (this.direction) {
-    		case 'up':
-    			ctx.translate(cWidth + 14, cHeight + 2)
-    			// ctx.rotate(90 * Math.PI / 180)
-    			break
-
-    		case 'left':
-    			ctx.translate(2, -14)
-    			break
-
-    		case 'down':
-    			ctx.translate(cWidth - 14, cHeight + 2)
-    			// ctx.rotate(90 * Math.PI / 180)
-    			break
-
-    		case 'right':
-    			ctx.translate(-2, -14)
-    			break
-    	}
-
-			ctx.beginPath()
-			ctx.moveTo(this.x - 5, this.y - 5)
-			ctx.arcTo(this.x - 10, this.y - 10, this.x - 10, this.y - 5, 2.5)
-			ctx.lineTo(this.x - 10, this.y + 5)
-			ctx.arcTo(this.x - 10, this.y + 10, this.x - 5, this.y + 5, 2.5)
-			ctx.lineTo(this.x, this.y)
-			ctx.lineTo(this.x - 5, this.y - 5)
-			ctx.fill()
-
-			ctx.beginPath()
-			ctx.moveTo(this.x + 5, this.y - 5)
-			ctx.arcTo(this.x + 10, this.y - 10, this.x + 10, this.y - 5, 2.5)
-			ctx.lineTo(this.x + 10, this.y + 5)
-			ctx.arcTo(this.x + 10, this.y + 10, this.x + 5, this.y + 5, 2.5)
-			ctx.lineTo(this.x, this.y)
-			ctx.lineTo(this.x + 5, this.y - 5)
-			ctx.fill()
-
-			ctx.beginPath()
-			ctx.arc(this.x, this.y, 2.5, 0, Tau, false)
-			ctx.fill()
-
-			ctx.restore()
     }
   }
 }

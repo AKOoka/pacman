@@ -125,7 +125,7 @@ const textCanvas = getId('text')
 const cText = textCanvas.getContext('2d')
 
 const boardCanvas = getId('board')
-const cBoard = boardCanvas.getContext('2d', { alpha: false })
+const cBoard = boardCanvas.getContext('2d')
 
 const menu = getId('menu')
 const onePlayerButton = getId('onePlayer')
